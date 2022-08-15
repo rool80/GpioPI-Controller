@@ -1,2 +1,2 @@
 # GpioPI-Controller
-Controlling GPIO pins and finding their current states on Raspberry PI.
+Very simple controlling GPIO pins and monitoring GPIO states on Raspberry PI.
