@@ -1,4 +1,4 @@
-module.exports = {
+{
   apps : [{
     name    : "GpioPI Controller",
     script  : "./app.js",
