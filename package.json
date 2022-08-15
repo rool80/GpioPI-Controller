@@ -1,0 +1,40 @@
+{
+  "name": "gpiopi-controller",
+  "version": "0.1.0",
+  "description": "Controlling GPIO pins and monitoring GPIO pin on Raspberry PI.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rool80/GpioPI-Controller.git"
+  },
+  "keywords": [
+    "raspberry",
+    "pi",
+    "gpio",
+    "controller"
+  ],
+  "author": "Roland Olejár",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rool80/GpioPI-Controller/issues"
+  },
+  "homepage": "https://github.com/rool80/GpioPI-Controller#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "finalhandler": "^1.2.0",
+    "homebridge-motion-sensor-plus": "^1.0.2",
+    "moment": "^2.29.4",
+    "node-dht-sensor": "^0.4.3",
+    "onoff": "^6.0.3",
+    "pi-pir-sensor": "^0.0.3",
+    "pir": "^0.2.0",
+    "router": "^1.3.7",
+    "rpi-gpio": "^2.1.7",
+    "url": "^0.11.0",
+    "winston": "^3.8.1"
+  }
+}
