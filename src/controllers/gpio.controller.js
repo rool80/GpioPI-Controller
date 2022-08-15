@@ -49,7 +49,8 @@ const set = async function(req, res) {
       gpio = params.gpio,
       type = params.type,
       value = params.value,
-      webhook = params.webhook
+      webhook = params.webhook,
+      save = params.save
 
     if (!gpio && !pin) {
       throw { status_code: 400, message: 'At least one parameter must be filled! (pin or gpio)' }
@@ -67,7 +68,7 @@ const set = async function(req, res) {
       throw { status_code: 400, message: 'Parameter value is not defined!' }
     }
 
-    let result = await gpio_service.set_pin(parseInt(gpio), type, parseInt(value), webhook)
+    let result = await gpio_service.set_pin(parseInt(gpio), type, parseInt(value), webhook, save)
 
     // ---
     res.writeHead(200, { 'Content-Type': 'application/json' })

@@ -1,7 +1,8 @@
 const 
     http = require('http'),
     moment = require('moment'),
-    logger = require('./config/logger.js')
+    logger = require('./config/logger.js'),
+    tool = require('./src/services/tool.service.js')
 
 // ---
 
@@ -33,3 +34,6 @@ http_server.listen(process.env.HTTP_PORT)
 // ---
 require('./src/routes/info.route')
 require('./src/routes/gpio.route')
+
+// ---
+tool.loadGPIO()

@@ -54,7 +54,7 @@ const on_change = async (p_pin, p_webhook_url) => {
  *      err: err (v pripade zlyhania obsahuje error, inak nie je vyplnene)
  *    }
  */
-const set_pin = async (p_gpio, p_type, p_value, p_webhook_url) => {
+const set_pin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
   try {
     let 
       value,
@@ -88,6 +88,16 @@ const set_pin = async (p_gpio, p_type, p_value, p_webhook_url) => {
           }
         })
         break
+    }
+
+    if (p_save === 'true') {
+      tool.saveGPIO({
+        gpio: p_gpio,
+        pin: p_pin,
+        type: p_type,
+        value: p_value,
+        webhook_url: p_webhook_url
+      })
     }
 
     return { status: true, value: value }

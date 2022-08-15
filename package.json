@@ -27,6 +27,7 @@
     "dotenv": "^16.0.1",
     "finalhandler": "^1.2.0",
     "homebridge-motion-sensor-plus": "^1.0.2",
+    "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "node-dht-sensor": "^0.4.3",
     "onoff": "^6.0.3",

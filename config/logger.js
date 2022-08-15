@@ -17,7 +17,7 @@ const logger = winston.createLogger({
   // format: winston.format.json(),
   // defaultMeta: { service: 'user-service' },
   format: format.combine(
-    format.timestamp({format: 'DD.MM.YYYY HH:mm:sss.ssss'}),
+    format.timestamp({format: 'DD.MM.YYYY HH:mm:ss.SSS'}),
     format.json()
   ),
   transports: [
