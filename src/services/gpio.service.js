@@ -79,15 +79,17 @@ const setPin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
         break
       case 'dht11':
       case 'dht22': // dht 22 or dht 11 sensor
-        let dht_type = p_type === 'dht22' ? 22 : 11
-        dht_sensor.read(dht_type, p_gpio, function(err, temperature, humidity) {
-          if (!err) {
-            logger.debug(`temp: ${temperature}°C, humidity: ${humidity}%`)
-            webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&temperature=${temperature}&huminidity:${humidity}`)
-          } else {
-            logger.error(`set_pin | dht sensor ! err => ${err.toString()}`)
-          }
-        })
+        var dht_type = p_type === 'dht22' ? 22 : 11
+        setInterval(() => {
+          dht_sensor.read(dht_type, p_gpio, function(err, temperature, humidity) {
+            if (!err) {
+              logger.debug(`temp: ${temperature}°C, humidity: ${humidity}%`)
+              webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&temperature=${temperature}&humidity:${humidity}`)
+            } else {
+              logger.error(`setPin | DHT sensor (${dht_type}) ! err => ${err.toString()}`)
+            }
+          })
+        }, 60000)
         break
     }
 
