@@ -90,7 +90,8 @@ const webhook = async function(req, res) {
       params = url.parse(req.url, true).query,
       pin = params.pin,
       gpio = params.gpio,
-      webhook = params.webhook
+      webhook = params.webhook,
+      save = params.save
 
     if (!gpio && !pin) {
       throw { status_code: 400, message: 'At least one parameter must be filled! (pin or gpio)' }
@@ -102,7 +103,7 @@ const webhook = async function(req, res) {
       }
     }
 
-    let result = await gpio_service.on_change(parseInt(pin), webhook)
+    let result = await gpio_service.on_change(parseInt(pin), webhook, save)
 
     // ---
     res.writeHead(200, { 'Content-Type': 'application/json' })

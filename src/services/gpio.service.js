@@ -18,7 +18,7 @@ const
  *      value: 1
  *    }
  */
-const on_change = async (p_pin, p_webhook_url) => {
+const on_change = async (p_pin, p_webhook_url, p_save) => {
   try {
     let p_gpio = await Pin2Gpio(p_pin)
     gpiop.setup(p_pin, gpio.DIR_IN, gpio.EDGE_BOTH)
@@ -29,10 +29,18 @@ const on_change = async (p_pin, p_webhook_url) => {
         val = val === true ? 1 : 0
         webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&value=${val}`)
       })
+      if (p_save === 'true') {
+        tool.saveGPIO({
+          gpio: p_gpio,
+          pin: p_pin,
+          type: 'onchange',
+          value: -1,
+          webhook_url: p_webhook_url
+        })
+      }
+
       return { status: true }
     })
-
-    
   } catch(err) {
     return { status: false, err: err }
   }
