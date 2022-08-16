@@ -107,3 +107,5 @@ dist
 
 # GPIO settings
 data.json
+.DS_Store
+src/.DS_Store

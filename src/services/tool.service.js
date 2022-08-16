@@ -34,6 +34,7 @@ const saveGPIO = (obj) => {
 const loadGPIO = () => {
   try {
     if (fs.existsSync(process.env.DATA_FILE)) {
+      logger.info(`Loading configuration file. ${process.env.DATA_FILE}`)
       let data = JSON.parse(fs.readFileSync(process.env.DATA_FILE))
       for (let index = 0; index < data.gpios.length; index++) {
         const item = data.gpios[index]
@@ -48,6 +49,8 @@ const loadGPIO = () => {
           case 'dht22':
         }
       }
+    } else {
+      logger.info('No configuration file.')
     }
   } catch(err) {
     logger.error(`[gpio.service.js] loadGPIO | ! err => ${err.toString()}`)
