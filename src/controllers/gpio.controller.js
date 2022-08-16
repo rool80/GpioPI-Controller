@@ -23,7 +23,7 @@ const get = async function(req, res) {
       }
     }
 
-    let result = await gpio_service.get_pin(parseInt(gpio))
+    let result = await gpio_service.getPin(parseInt(gpio))
 
     // ---
     res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -68,7 +68,7 @@ const set = async function(req, res) {
       throw { status_code: 400, message: 'Parameter value is not defined!' }
     }
 
-    let result = await gpio_service.set_pin(parseInt(gpio), type, parseInt(value), webhook, save)
+    let result = await gpio_service.setPin(parseInt(gpio), type, parseInt(value), webhook, save)
 
     // ---
     res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -84,42 +84,42 @@ const set = async function(req, res) {
   }
 }
 
-const webhook = async function(req, res) {
-  try {
-    let 
-      params = url.parse(req.url, true).query,
-      pin = params.pin,
-      gpio = params.gpio,
-      webhook = params.webhook,
-      save = params.save
+// const webhook = async function(req, res) {
+//   try {
+//     let 
+//       params = url.parse(req.url, true).query,
+//       pin = params.pin,
+//       gpio = params.gpio,
+//       webhook = params.webhook,
+//       save = params.save
 
-    if (!gpio && !pin) {
-      throw { status_code: 400, message: 'At least one parameter must be filled! (pin or gpio)' }
-    }
-    if (!pin) {
-      pin = await gpio_service.Gpio2Pin(parseInt(gpio))
-      if (pin && pin.status === false) {
-        throw { status_code: 400, message: 'Gpio parse error!', err: pin.err }
-      }
-    }
+//     if (!gpio && !pin) {
+//       throw { status_code: 400, message: 'At least one parameter must be filled! (pin or gpio)' }
+//     }
+//     if (!pin) {
+//       pin = await gpio_service.Gpio2Pin(parseInt(gpio))
+//       if (pin && pin.status === false) {
+//         throw { status_code: 400, message: 'Gpio parse error!', err: pin.err }
+//       }
+//     }
 
-    let result = await gpio_service.on_change(parseInt(pin), webhook, save)
+//     let result = await gpio_service.on_change(parseInt(pin), webhook, save)
 
-    // ---
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({
-      name: global.name_app,
-      pin: pin,
-      gpio: gpio
-    }))
-  } catch(err) {
-    res.writeHead(err.status_code || 500, { 'Content-Type': 'application/json' }).end(JSON.stringify({
-      name: global.name_app,
-      error: err.message || err.toString()
-    }))
-  }
-}
+//     // ---
+//     res.writeHead(200, { 'Content-Type': 'application/json' })
+//     res.end(JSON.stringify({
+//       name: global.name_app,
+//       pin: pin,
+//       gpio: gpio
+//     }))
+//   } catch(err) {
+//     res.writeHead(err.status_code || 500, { 'Content-Type': 'application/json' }).end(JSON.stringify({
+//       name: global.name_app,
+//       error: err.message || err.toString()
+//     }))
+//   }
+// }
 
 exports.get = get
 exports.set = set
-exports.webhook = webhook
+// exports.webhook = webhook

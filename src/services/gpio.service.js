@@ -18,7 +18,7 @@ const
  *      value: 1
  *    }
  */
-const on_change = async (p_pin, p_webhook_url, p_save) => {
+const watchPinOut = async (p_pin, p_webhook_url) => {
   try {
     let p_gpio = await Pin2Gpio(p_pin)
     gpiop.setup(p_pin, gpio.DIR_IN, gpio.EDGE_BOTH)
@@ -29,16 +29,6 @@ const on_change = async (p_pin, p_webhook_url, p_save) => {
         val = val === true ? 1 : 0
         webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&value=${val}`)
       })
-      if (p_save === 'true') {
-        tool.saveGPIO({
-          gpio: p_gpio,
-          pin: p_pin,
-          type: 'onchange',
-          value: -1,
-          webhook_url: p_webhook_url
-        })
-      }
-
       return { status: true }
     })
   } catch(err) {
@@ -62,7 +52,7 @@ const on_change = async (p_pin, p_webhook_url, p_save) => {
  *      err: err (v pripade zlyhania obsahuje error, inak nie je vyplnene)
  *    }
  */
-const set_pin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
+const setPin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
   try {
     let 
       value,
@@ -73,10 +63,13 @@ const set_pin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
         const pout = new Gpio(p_gpio, p_type)
         pout.writeSync(p_value)
         value = pout.readSync()
+        if (p_webhook_url) {
+          watchPinOut(p_pin, p_webhook_url)
+        }
         break
       case 'in':
         const pin = new Gpio(p_gpio, p_type, 'both')
-        pin.watch((err, val) => {
+        pin.watch((err, val) => { // webhook pre IN
           if (err) {
             throw err
           }
@@ -126,7 +119,7 @@ const set_pin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
  *      err: err (v pripade zlyhania obsahuje error, inak nie je vyplnene)
  *    }
  */
-const get_pin = async (p_gpio) => {
+const getPin = async (p_gpio) => {
   try {
     const pin = new Gpio(p_gpio) // napr.: 17
       
@@ -153,7 +146,7 @@ const webHook = async (p_url) => {
 }
 
 /**
- *  Konverzna funkcia vrati cislo PINu na RPi
+ *  Konverzna funkcia vrati cislo PINu na RPi. Prevedie GPIO na PIN.
  *  @param p_gpio napr.: GPIO2 => PIN 3 etc...
  */
 const Gpio2Pin = async (p_gpio) => {
@@ -167,7 +160,7 @@ const Gpio2Pin = async (p_gpio) => {
 }
 
 /**
- *  Konverzna funkcia vrati cislo GPIO na RPi
+ *  Konverzna funkcia vrati cislo GPIO na RPi. Prevedie PIN na GPIO.
  *  @param p_pin napr.: PIN3 => GPIO 2 etc...
  */
  const Pin2Gpio = async (p_pin) => {
@@ -181,8 +174,8 @@ const Gpio2Pin = async (p_gpio) => {
 }
 
 
-exports.set_pin = set_pin
-exports.get_pin = get_pin
-exports.on_change = on_change
+exports.setPin = setPin
+exports.getPin = getPin
 exports.Gpio2Pin = Gpio2Pin
 exports.Pin2Gpio = Pin2Gpio
+// exports.on_change = watchPinOut

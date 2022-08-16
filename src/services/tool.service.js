@@ -40,13 +40,13 @@ const loadGPIO = () => {
         const item = data.gpios[index]
         switch (item.type) {
           case 'in':
-            gpio.set_pin(item.gpio, item.type, item.value, item.webhook_url)
-            break
           case 'out':
-            gpio.set_pin(item.gpio, item.type, item.value)
+            gpio.setPin(item.gpio, item.type, item.value, item.webhook_url)
             break
           case 'dht11':
           case 'dht22':
+            break
+          default:
         }
       }
     } else {
