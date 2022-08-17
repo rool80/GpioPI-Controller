@@ -15,9 +15,10 @@ api/v1/info/<br>
 - print info<br>
 <br>
 EXAMPLE<br>
+=
+REQUEST<br>
 <pre>http://ip_address_your_server:8080/api/v1/info/</pre>
-<br>
-Result:<br>
+RESPONSE<br>
 <pre>
 {
   "name": "GpioPI Controller",
