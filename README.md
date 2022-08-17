@@ -12,13 +12,14 @@ pm2 start pm2.GpioPI-Controller.js
 
 GET<br>
 api/v1/info/<br>
-- print info
-EXAMPLE
+- print info<br>
+EXAMPLE<br>
 - http://ip_address_your_server:8080/api/v1/info/<br>
-Result:<br>
-{
-  "name": "GpioPI Controller",
-  "uptime": 52619.57,
-  "author": "Roland Olejár",
-  "version": "1.00"
-}
+Result:<br><br>
+{<br>
+  "name": "GpioPI Controller",<br>
+  "uptime": 52619.57,<br>
+  "author": "Roland Olejár",<br>
+  "version": "1.00"<br>
+}<br>
+<br>
