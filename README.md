@@ -14,7 +14,7 @@ GET<br>
 api/v1/info/<br>
 - print info<br>
 <br>
-*EXAMPLE*
+<b>EXAMPLE</b>
 
 REQUEST<br>
 <pre>http://ip_address_your_server:8080/api/v1/info/</pre>
