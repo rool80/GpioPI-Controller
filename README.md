@@ -14,8 +14,7 @@ GET<br>
 api/v1/info/<br>
 - print info<br>
 <br>
-EXAMPLE
-<div style="padding-left:20px">
+EXAMPLE**
 REQUEST<br>
 <pre>http://ip_address_your_server:8080/api/v1/info/</pre>
 RESPONSE<br>
@@ -27,4 +26,3 @@ RESPONSE<br>
   "version": "1.00"
 }
 </pre>
-</div>
