@@ -15,9 +15,9 @@ api/v1/info/<br>
 - print info<br>
 <br>
 EXAMPLE<br>
-- http://ip_address_your_server:8080/api/v1/info/<br>
+<pre>http://ip_address_your_server:8080/api/v1/info/</pre>
 <br>
-Result:<br><br>
+Result:<br>
 <pre>
 {
   "name": "GpioPI Controller",
