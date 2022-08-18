@@ -1,6 +1,6 @@
 # GpioPI Controller
 Very easy to control GPIO pins and monitor GPIO states on Raspberry PI.
-- the controller allows you to switch the GPIO to "in", "out" or use the option to monitor temperature and humidity from DHT sensors. 
+- the controller allows you to switch the GPIO to "**in**", "**out**" or use the option to monitor temperature and humidity from DHT sensors. 
 - the controller has the option to set a webhook, which is activated when the value of the GPIO pin changes and calls the specified url address where it sells the current value of the pin. E.g.: webhook can be called to nodered and subsequent use of logic for automation directly in nodered...
 
 # Run
