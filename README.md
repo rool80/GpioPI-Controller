@@ -12,7 +12,8 @@ pm2 start pm2.GpioPI-Controller.js
 
 # WEB
 
-A simple option to configure and monitor the GPIO status using the web interface at the url address http:\\your_ip_address:8080
+A simple option to configure and monitor the GPIO status using the web interface at the url address http://your_ip_address:8080
+<img width="1348" alt="Gpio Controller - board" src="https://user-images.githubusercontent.com/18568139/186022609-73672817-4127-4360-ba76-7c56ad5bcb3d.png">
 
 # API
 
