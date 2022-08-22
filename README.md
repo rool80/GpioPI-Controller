@@ -10,6 +10,10 @@ or
 
 pm2 start pm2.GpioPI-Controller.js
 
+# WEB
+
+A simple option to configure and monitor the GPIO status using the web interface at the url address http:\\your_ip_address:8080
+
 # API
 
 API specification can be found at this url address: https://api.irool.cz/?api=GPIO-CONTROLLER
