@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Raspi board</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <script src = "https://use.fontawesome.com/releases/v5.1.0/js/all.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+      is-hidden {
+        visibility: hidden;
+      }
+      .btn { /* switch icon */
+        cursor: pointer !important;
+      }
+      .v3 {
+        color: #fff;
+        background-color: #F44335;
+        line-height: 22px !important;
+      }
+      .v5 {
+        color: #fff;
+        background-color: #F44335;
+        border-bottom: 1px solid #ef645b;
+        line-height: 22px !important;
+      }
+      .gnd {
+        color: #fff;
+        background-color: #2096F3;
+        border-bottom: 1px solid #128dea;
+        line-height: 22px !important;
+      }
+      p {
+        font-size: 14px;
+        line-height: 22px;
+      }
+      .p-handle {
+        color: #ffffff !important;
+        font-weight: bold !important;
+        text-shadow: 0px 0px #313131 !important;
+      }
+      .p-green {
+        color: #FFFFFF;
+        background-color: #4BAF4F;
+        text-align: center;
+        border-bottom: 1px solid #63b266;
+        text-align: left;
+        padding-left: 10px;
+      }
+      .p-green-text-not-active {
+        color: #3d9e42;
+        text-shadow: 1px 1px #70ad73;
+      }
+      .p-green-text-not-active:hover {
+        color: #efefef;
+        cursor: pointer;
+      }
+      .p-yellow {
+        color: #000000;
+        background-color: #dbd383;
+        text-align: center;
+        border-bottom: 1px solid #eae28c;
+        text-align: left;
+        padding-left: 10px;
+      }
+      .p-yellow-text-not-active {
+        color: #cec888;
+        text-shadow: 1px 1px #e8e092;
+      }
+      .p-yellow-text-not-active:hover {
+        color: #ffffff;
+        cursor: pointer;
+      }
+      .p-gray {
+        color: #000000;
+        background-color: #9E9E9E;
+        text-align: center;
+        border-bottom: 1px solid #aaa9a9;
+        text-align: left;
+        padding-left: 10px;
+      }
+      .p-gray-text-not-active {
+        color: #939393;
+        text-shadow: 1px 1px #a3a3a3;
+      }
+      .p-gray-text-not-active:hover {
+        color: #efefef;
+        cursor: pointer;
+      }
+      .p-orange {
+        color: #000000;
+        background-color: #FF9800;
+        text-align: center;
+        border-bottom: 1px solid #fca72f;
+        text-align: left;
+        padding-left: 10px;
+      }
+      .p-orange-text-not-active {
+        color: #f29007;
+        text-shadow: 1px 1px #fcaa37;
+      }
+      .p-orange-text-not-active:hover {
+        color: #efefef;
+        cursor: pointer;
+      }
+      .p-black {
+        color: #fff;
+        background-color: #000000;
+        border-bottom: 1px solid #111111;
+      }
+      .p-label {
+        display:inline-block;
+        width: 55px;
+      }
+      .p-label-in {
+        display:inline-block;
+        text-align: left;
+        width: 35px;
+      }
+      .p-label-hook {
+        display:inline-block;
+        width: 85px;
+      }
+      .p-center {
+        text-align: center;
+      }
+      .ii {
+        margin-right: 10px;
+      }
+      .notify {
+        position: absolute;
+        right: 30px;
+        top: 25px;
+        width: 400px;
+        display: none;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+      }
+      .form-webhook {
+        position: absolute;
+        top: calc(50% - 100px);
+        left: calc(50% - 200px);
+        width: 400px;
+        height: 175px;
+        display: none;
+      }
+      .col-right {
+        text-align: right;
+      }
+      .col-note {
+        float: right;
+        margin-right: 5px;
+      }
+      .footer {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NOTIFY -->
+    <div id="info_panel" class="notification is-light notify">
+      <button class="delete" onclick="hideMsg()"></button>
+      <p id="info_text">&nbsp;</p>
+    </div>
+    <!-- BOX -->
+    <div id="form_webhook" class="box form-webhook">
+      <div class="field">
+        <label class="label">Web hook</label>
+        <div class="control">
+          <input id="form_url" class="input" type="text" placeholder="e.g. http://ip_your_server/motion">
+        </div>
+      </div>
+    
+      <div style="text-align: right;">
+        <button class="button" onclick="btnCancel()">Cancel</button>
+        <button class="button is-primary" onclick="btnOK()">OK</button>
+      </div>
+    </div>
+    <!-- BOARD -->
+    <div class="columns">
+      <div class="column">
+        
+      </div>
+      <div class="column is-four-fifths">
+        <!-- board -->
+        <div class="columns">
+          <!-- piny vlavo -->
+          <div class="column is-half">
+            <p>Raspberry Pi B+, 2, 3 & Zero</p>
+            <p class="bd-notification v3">
+              <span class="p-label" style="margin-left:35px;">3.3V</span>
+              <span class="p-label">PIN1</span>
+              <span style="color: #f5b0b0;margin-left:10px">(power +)</span>
+            </p>
+            <p id="gpio2" class="bd-notification p-green">
+              <span id="gpio2_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(2)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio2_disabled" style="cursor:pointer" onclick="setValue(2)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio2_label" class="p-label">GPIO2</span>
+              <span id="gpio2_pin" class="p-label">PIN3</span>
+              <span id="gpio2_in" class="p-label-in p-green-text-not-active" onclick="handleGpio(2, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio2_out_block" class="p-green-text-not-active">
+                <span onclick="setValue(2);">
+                  <span id="gpio2_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio2_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio2_out_value">0</span>
+                <span id="gpio2_out" class="p-label p-green-text-not-active" onclick="handleGpio(2, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio2_dht11" class="p-label p-green-text-not-active" onclick="handleGpio(2, 'dht11', this)">DHT11</span>
+              <span id="gpio2_dht22" class="p-label p-green-text-not-active" onclick="handleGpio(2, 'dht22', this)">DHT22</span>
+              <span id="gpio2_webhook" class="p-label-hook p-green-text-not-active" onclick="handleHook(2, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">I2C</span>
+              <span id="gpio2_note" class="col-note"></span>
+            </p>
+            <p id="gpio3" class="bd-notification p-green">
+              <span id="gpio3_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(3)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio3_disabled" style="cursor:pointer" onclick="setValue(3)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio3_label" class="p-label">GPIO3</span>
+              <span id="gpio3_pin" class="p-label">PIN5</span>
+              <span id="gpio3_in" class="p-label-in p-green-text-not-active" onclick="handleGpio(3, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio3_out_block" class="p-green-text-not-active">
+                <span onclick="setValue(3);">
+                  <span id="gpio3_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio3_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio3_out_value">0</span>
+                <span id="gpio3_out" class="p-label p-green-text-not-active" onclick="handleGpio(3, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio3_dht11" class="p-label p-green-text-not-active" onclick="handleGpio(3, 'dht11', this)">DHT11</span>
+              <span id="gpio3_dht22" class="p-label p-green-text-not-active" onclick="handleGpio(3, 'dht22', this)">DHT22</span>
+              <span id="gpio3_webhook" class="p-label-hook p-green-text-not-active" onclick="handleHook(3, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">I2C</span>
+              <span id="gpio3_note" class="col-note"></span>
+            </p>
+            <p id="gpio4" class="bd-notification p-yellow">
+              <span id="gpio4_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(4)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio4_disabled" style="cursor:pointer" onclick="setValue(4)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio4_label" class="p-label">GPIO4</span>
+              <span id="gpio4_pin" class="p-label">PIN7</span>
+              <span id="gpio4_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(4, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio4_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(4);">
+                  <span id="gpio4_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio4_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio4_out_value">0</span>
+                <span id="gpio4_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(4, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio4_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(4, 'dht11', this)">DHT11</span>
+              <span id="gpio4_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(4, 'dht22', this)">DHT22</span>
+              <span id="gpio4_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(4, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio4_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN9</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p id="gpio17" class="bd-notification p-yellow">
+              <span id="gpio17_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(17)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio17_disabled" style="cursor:pointer" onclick="setValue(17)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio17_label" class="p-label">GPIO17</span>
+              <span id="gpio17_pin" class="p-label">PIN11</span>
+              <span id="gpio17_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(17, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio17_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(17);">
+                  <span id="gpio17_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio17_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio17_out_value">0</span>
+                <span id="gpio17_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(17, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio17_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(17, 'dht11', this)">DHT11</span>
+              <span id="gpio17_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(17, 'dht22', this)">DHT22</span>
+              <span id="gpio17_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(17, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio17_note" class="col-note"></span>
+            </p>
+            <p id="gpio27" class="bd-notification p-yellow">
+              <span id="gpio27_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(27)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio27_disabled" style="cursor:pointer" onclick="setValue(27)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio27_label" class="p-label">GPIO27</span>
+              <span id="gpio27_pin" class="p-label">PIN13</span>
+              <span id="gpio27_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(27, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio27_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(27);">
+                  <span id="gpio27_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio27_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio27_out_value">0</span>
+                <span id="gpio27_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(27, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio27_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(27, 'dht11', this)">DHT11</span>
+              <span id="gpio27_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(27, 'dht22', this)">DHT22</span>
+              <span id="gpio27_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(27, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio27_note" class="col-note"></span>
+            </p>
+            <p id="gpio22" class="bd-notification p-yellow">
+              <span id="gpio22_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(22)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio22_disabled" style="cursor:pointer" onclick="setValue(22)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio22_label" class="p-label">GPIO22</span>
+              <span id="gpio22_pin" class="p-label">PIN15</span>
+              <span id="gpio22_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(22, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio22_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(22);">
+                  <span id="gpio22_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio22_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio22_out_value">0</span>
+                <span id="gpio22_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(22, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio22_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(22, 'dht11', this)">DHT11</span>
+              <span id="gpio22_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(22, 'dht22', this)">DHT22</span>
+              <span id="gpio22_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(22, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio22_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification v3">
+              <span class="p-label" style="margin-left:35px;">3.3V</span>
+              <span class="p-label">PIN17</span>
+              <span style="color: #f5b0b0;margin-left:10px">(power +)</span>
+            </p>
+            <p id="gpio10" class="bd-notification p-orange">
+              <span id="gpio10_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(10)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio10_disabled" style="cursor:pointer" onclick="setValue(10)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio10_label" class="p-label">GPIO10</span>
+              <span id="gpio10_pin" class="p-label">PIN19</span>
+              <span id="gpio10_in" class="p-label-in p-orange-text-not-active" onclick="handleGpio(10, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio10_out_block" class="p-orange-text-not-active">
+                <span onclick="setValue(10);">
+                  <span id="gpio10_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio10_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio10_out_value">0</span>
+                <span id="gpio10_out" class="p-label p-orange-text-not-active" onclick="handleGpio(10, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio10_dht11" class="p-label p-orange-text-not-active" onclick="handleGpio(10, 'dht11', this)">DHT11</span>
+              <span id="gpio10_dht22" class="p-label p-orange-text-not-active" onclick="handleGpio(10, 'dht22', this)">DHT22</span>
+              <span id="gpio10_webhook" class="p-label-hook p-orange-text-not-active" onclick="handleHook(10, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">SPI</span>
+              <span id="gpio10_note" class="col-note"></span>
+            </p>
+            <p id="gpio9" class="bd-notification p-orange">
+              <span id="gpio9_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(9)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio9_disabled" style="cursor:pointer" onclick="setValue(9)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio9_label" class="p-label">GPIO9</span>
+              <span id="gpio9_pin" class="p-label">PIN21</span>
+              <span id="gpio9_in" class="p-label-in p-orange-text-not-active" onclick="handleGpio(9, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio9_out_block" class="p-orange-text-not-active">
+                <span onclick="setValue(9);">
+                  <span id="gpio9_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio9_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio9_out_value">0</span>
+                <span id="gpio9_out" class="p-label p-orange-text-not-active" onclick="handleGpio(9, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio9_dht11" class="p-label p-orange-text-not-active" onclick="handleGpio(9, 'dht11', this)">DHT11</span>
+              <span id="gpio9_dht22" class="p-label p-orange-text-not-active" onclick="handleGpio(9, 'dht22', this)">DHT22</span>
+              <span id="gpio9_webhook" class="p-label-hook p-orange-text-not-active" onclick="handleHook(9, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">SPI</span>
+              <span id="gpio9_note" class="col-note"></span>
+            </p>
+            <p id="gpio11" class="bd-notification p-orange">
+              <span id="gpio11_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(11)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio11_disabled" style="cursor:pointer" onclick="setValue(11)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio11_label" class="p-label">GPIO11</span>
+              <span id="gpio11_pin" class="p-label">PIN23</span>
+              <span id="gpio11_in" class="p-label-in p-orange-text-not-active" onclick="handleGpio(11, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio11_out_block" class="p-orange-text-not-active">
+                <span onclick="setValue(11);">
+                  <span id="gpio11_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio11_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio11_out_value">0</span>
+                <span id="gpio11_out" class="p-label p-orange-text-not-active" onclick="handleGpio(11, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio11_dht11" class="p-label p-orange-text-not-active" onclick="handleGpio(11, 'dht11', this)">DHT11</span>
+              <span id="gpio11_dht22" class="p-label p-orange-text-not-active" onclick="handleGpio(11, 'dht22', this)">DHT22</span>
+              <span id="gpio11_webhook" class="p-label-hook p-orange-text-not-active" onclick="handleHook(11, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">SPI</span>
+              <span id="gpio11_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN25</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p class="bd-notification p-black">
+              <span class="p-label" style="margin-left:35px;">DNC</span>
+              <span class="p-label">PIN28</span>
+              <span style="color: #646464;margin-left:10px">(do not connect)</span>
+            </p>
+            <p id="gpio5" class="bd-notification p-yellow">
+              <span id="gpio5_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(5)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio5_disabled" style="cursor:pointer" onclick="setValue(5)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio5_label" class="p-label">GPIO5</span>
+              <span id="gpio5_pin" class="p-label">PIN29</span>
+              <span id="gpio5_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(5, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio5_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(5);">
+                  <span id="gpio5_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio5_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio5_out_value">0</span>
+                <span id="gpio5_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(5, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio5_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(5, 'dht11', this)">DHT11</span>
+              <span id="gpio5_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(5, 'dht22', this)">DHT22</span>
+              <span id="gpio5_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(5, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio5_note" class="col-note"></span>
+            </p>
+            <p id="gpio6" class="bd-notification p-yellow">
+              <span id="gpio6_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(6)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio6_disabled" style="cursor:pointer" onclick="setValue(6)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio6_label" class="p-label">GPIO6</span>
+              <span id="gpio6_pin" class="p-label">PIN31</span>
+              <span id="gpio6_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(6, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio6_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(6);">
+                  <span id="gpio6_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio6_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio6_out_value">0</span>
+                <span id="gpio6_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(6, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio6_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(6, 'dht11', this)">DHT11</span>
+              <span id="gpio6_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(6, 'dht22', this)">DHT22</span>
+              <span id="gpio6_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(6, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio6_note" class="col-note"></span>
+            </p>
+            <p id="gpio13" class="bd-notification p-yellow">
+              <span id="gpio13_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(13)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio13_disabled" style="cursor:pointer" onclick="setValue(13)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio13_label" class="p-label">GPIO13</span>
+              <span id="gpio13_pin" class="p-label">PIN33</span>
+              <span id="gpio13_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(13, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio13_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(13);">
+                  <span id="gpio13_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio13_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio13_out_value">0</span>
+                <span id="gpio13_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(13, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio13_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(13, 'dht11', this)">DHT11</span>
+              <span id="gpio13_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(13, 'dht22', this)">DHT22</span>
+              <span id="gpio13_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(13, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio13_note" class="col-note"></span>
+            </p>
+            <p id="gpio19" class="bd-notification p-yellow">
+              <span id="gpio19_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(19)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio19_disabled" style="cursor:pointer" onclick="setValue(19)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio19_label" class="p-label">GPIO19</span>
+              <span id="gpio19_pin" class="p-label">PIN35</span>
+              <span id="gpio19_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(19, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio19_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(19);">
+                  <span id="gpio19_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio19_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio19_out_value">0</span>
+                <span id="gpio19_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(19, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio19_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(19, 'dht11', this)">DHT11</span>
+              <span id="gpio19_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(19, 'dht22', this)">DHT22</span>
+              <span id="gpio19_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(19, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio19_note" class="col-note"></span>
+            </p>
+            <p id="gpio26" class="bd-notification p-yellow">
+              <span id="gpio26_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(26)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio26_disabled" style="cursor:pointer" onclick="setValue(26)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio26_label" class="p-label">GPIO26</span>
+              <span id="gpio26_pin" class="p-label">PIN37</span>
+              <span id="gpio26_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(26, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio26_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(26);">
+                  <span id="gpio26_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio26_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio26_out_value">0</span>
+                <span id="gpio26_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(26, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio26_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(26, 'dht11', this)">DHT11</span>
+              <span id="gpio26_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(26, 'dht22', this)">DHT22</span>
+              <span id="gpio26_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(26, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio26_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN39</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+          </div>
+          <!-- piny vpravo -->
+          <div class="column is-half">
+            <p style="text-align: right;">
+              <i id="ws_connect" class="fas fa-thumbs-up" title="Websocket connected." style="color:green;display:none;"></i>
+              <i id="ws_disconnect" class="fas fa-thumbs-down" title="Websocket disconnected." style="color:red"></i>
+            </p>
+            <p class="bd-notification v5">
+              <span class="p-label" style="margin-left:35px;">5V</span>
+              <span class="p-label">PIN2</span>
+              <span style="color: #f5b0b0;margin-left:10px">(power +)</span>
+            </p>
+            <p class="bd-notification v3">
+              <span class="p-label" style="margin-left:35px;">5V</span>
+              <span class="p-label">PIN4</span>
+              <span style="color: #f5b0b0;margin-left:10px">(power +)</span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN6</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p id="gpio14" class="bd-notification p-gray">
+              <span id="gpio14_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(14)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio14_disabled" style="cursor:pointer" onclick="setValue(14)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio14_label" class="p-label">GPIO14</span>
+              <span id="gpio14_pin" class="p-label">PIN08</span>
+              <span id="gpio14_in" class="p-label-in p-gray-text-not-active" onclick="handleGpio(14, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio14_out_block" class="p-gray-text-not-active">
+                <span onclick="setValue(14);">
+                  <span id="gpio14_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio14_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio14_out_value">0</span>
+                <span id="gpio14_out" class="p-label p-gray-text-not-active" onclick="handleGpio(14, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio14_dht11" class="p-label p-gray-text-not-active" onclick="handleGpio(14, 'dht11', this)">DHT11</span>
+              <span id="gpio14_dht22" class="p-label p-gray-text-not-active" onclick="handleGpio(14, 'dht22', this)">DHT22</span>
+              <span id="gpio14_webhook" class="p-label-hook p-gray-text-not-active" onclick="handleHook(14, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">UART</span>
+              <span id="gpio14_note" class="col-note"></span>
+            </p>
+            <p id="gpio15" class="bd-notification p-gray">
+              <span id="gpio15_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(15)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio15_disabled" style="cursor:pointer" onclick="setValue(15)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio15_label" class="p-label">GPIO15</span>
+              <span id="gpio15_pin" class="p-label">PIN10</span>
+              <span id="gpio15_in" class="p-label-in p-gray-text-not-active" onclick="handleGpio(15, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio15_out_block" class="p-gray-text-not-active">
+                <span onclick="setValue(15);">
+                  <span id="gpio15_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio15_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio15_out_value">0</span>
+                <span id="gpio15_out" class="p-label p-gray-text-not-active" onclick="handleGpio(15, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio15_dht11" class="p-label p-gray-text-not-active" onclick="handleGpio(15, 'dht11', this)">DHT11</span>
+              <span id="gpio15_dht22" class="p-label p-gray-text-not-active" onclick="handleGpio(15, 'dht22', this)">DHT22</span>
+              <span id="gpio15_webhook" class="p-label-hook p-gray-text-not-active" onclick="handleHook(15, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">UART</span>
+              <span id="gpio15_note" class="col-note"></span>
+            </p>
+            <p id="gpio18" class="bd-notification p-yellow">
+              <span id="gpio18_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(18)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio18_disabled" style="cursor:pointer" onclick="setValue(18)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio18_label" class="p-label">GPIO18</span>
+              <span id="gpio18_pin" class="p-label">PIN12</span>
+              <span id="gpio18_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(18, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio18_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(18);">
+                  <span id="gpio18_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio18_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio18_out_value">0</span>
+                <span id="gpio18_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(18, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio18_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(18, 'dht11', this)">DHT11</span>
+              <span id="gpio18_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(18, 'dht22', this)">DHT22</span>
+              <span id="gpio18_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(18, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio18_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN14</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p id="gpio23" class="bd-notification p-yellow">
+              <span id="gpio23_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(23)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio23_disabled" style="cursor:pointer" onclick="setValue(23)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio23_label" class="p-label">GPIO23</span>
+              <span id="gpio23_pin" class="p-label">PIN16</span>
+              <span id="gpio23_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(23, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio23_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(23);">
+                  <span id="gpio23_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio23_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio23_out_value">0</span>
+                <span id="gpio23_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(23, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio23_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(23, 'dht11', this)">DHT11</span>
+              <span id="gpio23_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(23, 'dht22', this)">DHT22</span>
+              <span id="gpio23_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(23, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio23_note" class="col-note"></span>
+            </p>
+            <p id="gpio24" class="bd-notification p-yellow">
+              <span id="gpio24_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(24)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio24_disabled" style="cursor:pointer" onclick="setValue(24)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio24_label" class="p-label">GPIO24</span>
+              <span id="gpio24_pin" class="p-label">PIN18</span>
+              <span id="gpio24_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(24, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio24_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(24);">
+                  <span id="gpio24_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio24_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio24_out_value">0</span>
+                <span id="gpio24_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(24, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio24_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(24, 'dht11', this)">DHT11</span>
+              <span id="gpio24_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(24, 'dht22', this)">DHT22</span>
+              <span id="gpio24_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(24, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio24_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN20</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p id="gpio25" class="bd-notification p-yellow">
+              <span id="gpio25_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(25)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio25_disabled" style="cursor:pointer" onclick="setValue(25)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio25_label" class="p-label">GPIO25</span>
+              <span id="gpio25_pin" class="p-label">PIN22</span>
+              <span id="gpio25_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(25, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio25_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(25);">
+                  <span id="gpio25_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio25_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio25_out_value">0</span>
+                <span id="gpio25_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(25, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio25_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(25, 'dht11', this)">DHT11</span>
+              <span id="gpio25_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(25, 'dht22', this)">DHT22</span>
+              <span id="gpio25_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(25, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio25_note" class="col-note"></span>
+            </p>
+            <p id="gpio8" class="bd-notification p-orange">
+              <span id="gpio8_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(8)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio8_disabled" style="cursor:pointer" onclick="setValue(8)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio8_label" class="p-label">GPIO8</span>
+              <span id="gpio8_pin" class="p-label">PIN24</span>
+              <span id="gpio8_in" class="p-label-in p-orange-text-not-active" onclick="handleGpio(8, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio8_out_block" class="p-orange-text-not-active">
+                <span onclick="setValue(8);">
+                  <span id="gpio8_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio8_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio8_out_value">0</span>
+                <span id="gpio8_out" class="p-label p-orange-text-not-active" onclick="handleGpio(8, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio8_dht11" class="p-label p-orange-text-not-active" onclick="handleGpio(8, 'dht11', this)">DHT11</span>
+              <span id="gpio8_dht22" class="p-label p-orange-text-not-active" onclick="handleGpio(8, 'dht22', this)">DHT22</span>
+              <span id="gpio8_webhook" class="p-label-hook p-orange-text-not-active" onclick="handleHook(8, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">SPI</span>
+              <span id="gpio8_note" class="col-note"></span>
+            </p>
+            <p id="gpio7" class="bd-notification p-orange">
+              <span id="gpio7_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(7)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio7_disabled" style="cursor:pointer" onclick="setValue(7)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio7_label" class="p-label">GPIO7</span>
+              <span id="gpio7_pin" class="p-label">PIN26</span>
+              <span id="gpio7_in" class="p-label-in p-orange-text-not-active" onclick="handleGpio(7, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio7_out_block" class="p-orange-text-not-active">
+                <span onclick="setValue(7);">
+                  <span id="gpio7_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio7_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio7_out_value">0</span>
+                <span id="gpio7_out" class="p-label p-orange-text-not-active" onclick="handleGpio(7, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio7_dht11" class="p-label p-orange-text-not-active" onclick="handleGpio(7, 'dht11', this)">DHT11</span>
+              <span id="gpio7_dht22" class="p-label p-orange-text-not-active" onclick="handleGpio(7, 'dht22', this)">DHT22</span>
+              <span id="gpio7_webhook" class="p-label-hook p-orange-text-not-active" onclick="handleHook(7, 'webhook', this)">WEB HOOK</span>
+              <span class="col-right">SPI</span>
+              <span id="gpio7_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification p-black">
+              <span class="p-label" style="margin-left:35px;">DNC</span>
+              <span class="p-label">PIN28</span>
+              <span style="color: #646464;margin-left:10px">(do not connect)</span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN30</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p id="gpio12" class="bd-notification p-yellow">
+              <span id="gpio12_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(12)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio12_disabled" style="cursor:pointer" onclick="setValue(12)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio12_label" class="p-label">GPIO12</span>
+              <span id="gpio12_pin" class="p-label">PIN32</span>
+              <span id="gpio12_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(12, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio12_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(12);">
+                  <span id="gpio12_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio12_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio12_out_value">0</span>
+                <span id="gpio12_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(12, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio12_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(12, 'dht11', this)">DHT11</span>
+              <span id="gpio12_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(12, 'dht22', this)">DHT22</span>
+              <span id="gpio12_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(12, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio12_note" class="col-note"></span>
+            </p>
+            <p class="bd-notification gnd">
+              <span class="p-label" style="margin-left:35px;">GND</span>
+              <span class="p-label">PIN34</span>
+              <span style="color: #c0cffc;margin-left:10px">(ground)</span>
+            </p>
+            <p id="gpio16" class="bd-notification p-yellow">
+              <span id="gpio16_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(16)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio16_disabled" style="cursor:pointer" onclick="setValue(16)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio16_label" class="p-label">GPIO16</span>
+              <span id="gpio16_pin" class="p-label">PIN36</span>
+              <span id="gpio16_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(16, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio16_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(16);">
+                  <span id="gpio16_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio16_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio16_out_value">0</span>
+                <span id="gpio16_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(16, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio16_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(16, 'dht11', this)">DHT11</span>
+              <span id="gpio16_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(16, 'dht22', this)">DHT22</span>
+              <span id="gpio16_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(16, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio16_note" class="col-note"></span>
+            </p>
+            <p id="gpio20" class="bd-notification p-yellow">
+              <span id="gpio20_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(20)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio20_disabled" style="cursor:pointer" onclick="setValue(20)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio20_label" class="p-label">GPIO20</span>
+              <span id="gpio20_pin" class="p-label">PIN38</span>
+              <span id="gpio20_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(20, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio20_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(20);">
+                  <span id="gpio20_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio20_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio20_out_value">0</span>
+                <span id="gpio20_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(20, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio20_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(20, 'dht11', this)">DHT11</span>
+              <span id="gpio20_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(20, 'dht22', this)">DHT22</span>
+              <span id="gpio20_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(20, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio20_note" class="col-note"></span>
+            </p>
+            <p id="gpio21" class="bd-notification p-yellow">
+              <span id="gpio21_enabled" style="cursor:pointer" class="is-hidden" onclick="deactivateGpio(21)"><i class="fas fa-check-square ii"></i></span>
+              <span id="gpio21_disabled" style="cursor:pointer" onclick="setValue(21)"><i class="fas fa-square ii"></i></span>
+              <span id="gpio21_label" class="p-label">GPIO21</span>
+              <span id="gpio21_pin" class="p-label">PIN40</span>
+              <span id="gpio21_in" class="p-label-in p-yellow-text-not-active" onclick="handleGpio(21, 'in', this)">IN&nbsp;&nbsp;</span>
+              <span id="gpio21_out_block" class="p-yellow-text-not-active">
+                <span onclick="setValue(21);">
+                  <span id="gpio21_out_switch_on" class="is-hidden btn"><i class="fas fa-toggle-on"></i></span>
+                  <span id="gpio21_out_switch_off" class="btn"><i class="fas fa-toggle-off"></i></span>
+                </span>
+                <span id="gpio21_out_value">0</span>
+                <span id="gpio21_out" class="p-label p-yellow-text-not-active" onclick="handleGpio(21, 'out', this)">OUT</span>
+              </span>
+              <span id="gpio21_dht11" class="p-label p-yellow-text-not-active" onclick="handleGpio(21, 'dht11', this)">DHT11</span>
+              <span id="gpio21_dht22" class="p-label p-yellow-text-not-active" onclick="handleGpio(21, 'dht22', this)">DHT22</span>
+              <span id="gpio21_webhook" class="p-label-hook p-yellow-text-not-active" onclick="handleHook(21, 'webhook', this)">WEB HOOK</span>
+              <span id="gpio21_note" class="col-note"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="column">
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong>Gpio Controller</strong> by <a href="https://irool.cz" target="_blank">Roland Olejár</a>. The source code is hosted on
+          <a href="https://github.com/rool80/GpioPI-Controller" target="_blank"">github</a>.
+        </p>
+      </div>
+    </footer>
+    <script type="text/javascript">
+      let 
+        gpio = [],
+        msgTimeout
+
+      // DOCUMENT READY
+      $( document ).ready(function() {
+        // load init conf
+        $.ajax({
+          url: '/api/v1/info',
+          dataType: 'json'
+        })
+        .done(function(data) {
+          console.log( "data loaded =>", data )
+          gpio = data.gpios_init
+          loadGpios(data.gpios_init)
+        })
+        .fail(function() {
+          console.error( "Load init configuration error!" )
+        })
+        .always(function() {
+          console.log( "Load init configuration finished." )
+        })
+        // ---
+        WebSocketClient()
+      })
+      // ---
+      // document.addEventListener('DOMContentLoaded', () => {
+      //   (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+      //     const $notification = $delete.parentNode
+
+      //     $delete.addEventListener('click', () => {
+      //       $notification.parentNode.removeChild($notification);
+      //     })
+      //   })
+      // })
+      // ------------
+      var loadGpios = async (p_gpios) => {
+        try {
+          for (let index = 0; index < p_gpios.length; index++) {
+            const obj = p_gpios[index]
+            $( `#gpio${obj.gpio}_enabled` ).removeClass('is-hidden') // zafajkni ze je GPIO aktivne
+            $( `#gpio${obj.gpio}_disabled` ).addClass('is-hidden')
+            $( `#gpio${obj.gpio}_${obj.type}_block` ) // odstran efekt disablovania textu
+              .removeClass('p-green-text-not-active')
+              .removeClass('p-yellow-text-not-active')
+              .removeClass('p-orange-text-not-active')
+              .removeClass('p-gray-text-not-active')
+            // ---
+            btnSwitchStatus(obj)
+            // ---
+            $( `#gpio${obj.gpio}_${obj.type}` ).addClass('p-handle')
+            if (obj.webhook_url) {
+              $( `#gpio${obj.gpio}_webhook` ).addClass('p-handle')
+              $( `#gpio${obj.gpio}_webhook` ).attr('title', obj.webhook_url)
+            }
+          }
+
+          return true
+        } catch(err) {
+          console.error(err)
+          return false
+        }
+      }
+      // ---
+      var btnSwitchStatus = (obj) => { // switch
+        if (obj.type === 'out' && obj.value === 1) { // ikona switchu on | off
+          $( `#gpio${obj.gpio}_${obj.type}_switch_on` ).removeClass('is-hidden')
+          $( `#gpio${obj.gpio}_${obj.type}_switch_off` ).addClass('is-hidden')
+        } else if (obj.type === 'out') {
+          $( `#gpio${obj.gpio}_${obj.type}_switch_off` ).removeClass('is-hidden')
+          $( `#gpio${obj.gpio}_${obj.type}_switch_on` ).addClass('is-hidden')
+        }
+        // value
+        $( `#gpio${obj.gpio}_${obj.type}_value` ).text(obj.value) // hodnota 0 | 1
+      }
+      // ---
+      var setValue = async (p_gpio) => { // switch btn click -> send request to server
+        try {
+          let index = _.findIndex(gpio, function(o) { return o.gpio == p_gpio })
+          if (index > -1) {
+            let type = gpio[index].type
+            let value = gpio[index].value === 1 ? 0 : 1
+            let url = `api/v1/gpio/set?gpio=${p_gpio}&type=${type}&value=${value}&save=true`
+            if (gpio[index].webhook) {
+              url += `&webhook=${gpio[index].webhook}`
+            }
+            $.ajax({
+              url: url,
+              dataType: 'json'
+            })
+            .done(function(data) {
+              // gpio[index].value = value // nastav hodnotu na aktualnu
+              // btnSwitchStatus(gpio[index])
+              // let classes = $( `#gpio${p_gpio}_enabled` ).prop("classList")
+              // classes = typeof classes === 'undefined' ? 'is-hidden' : classes.toString()
+              // if ( classes.indexOf('is-hidden') > -1 ) { // if gpio is not enabled
+              //   setMsg(`GPIO${p_gpio} is activated.`, 'is-success')
+              // }
+              // $( `#gpio${p_gpio}_enabled` ).removeClass('is-hidden') // zafajkni ze je GPIO aktivne
+              // $( `#gpio${p_gpio}_disabled` ).addClass('is-hidden')
+            })
+            .fail(function() {
+              console.error( `Set value to gpio${p_gpio} failed!` )
+            })
+            .always(function() {
+              console.log( `Set value to gpio${p_gpio} finished!` )
+            })
+          }
+        } catch(err) {
+          console.error(err)
+        }
+      }
+      // ---
+      var setMsg = (p_text, p_type, p_timeout) => {
+        // p_type = p_type || 'is-info'
+        p_timeout = p_timeout || 8000
+        $( `#info_text` ).html(p_text)
+        if (p_type) {
+          $( `#info_panel` ).addClass(p_type)
+        }
+        $( `#info_panel` ).show()
+        msgTimeout = setTimeout(() => {
+          hideMsg(p_type)
+          $( `#info_text` ).html('&nbsp;')
+        }, p_timeout)
+      }
+      // ---
+      var hideMsg = (p_type) => {
+        $( `#info_panel` ).hide()
+        if (p_type) {
+          $( `#info_panel` ).removeClass(p_type) // etc... 'is-danger'
+        }
+        clearTimeout(msgTimeout)
+      }
+      // ---
+      var btnCancel = () => {
+        $( `#form_url` ).val("")
+        $( `#form_url` ).removeAttr('pgio')
+        $( `#form_webhook` ).hide()
+      }
+      var btnOK = () => {
+        let webhook_url = $( `#form_url` ).val()
+        if (!webhook_url) {
+          btnCancel()
+          setMsg('Webhook is empty, not set.', 'is-info')
+          return
+        }
+        if (webhook_url.replace(/ /g, "").length === 0) {
+          btnCancel()
+          setMsg('Webhook is empty, not set.', 'is-info')
+          return
+        }
+        // ---
+        let gpio_val = $( `#form_url` ).attr('pgio')
+        let index = _.findIndex(gpio, function(o) { return o.gpio == gpio_val })
+        if (index > -1) {
+          gpio[index].webhook = webhook_url
+        } else {
+          gpio.push({
+            gpio: gpio_val,
+            webhook: webhook_url
+          })
+        }
+        $(`#gpio${gpio_val}_webhook`).addClass('p-handle')
+        $(`#gpio${gpio_val}_webhook` ).attr('title', webhook_url)
+        btnCancel()
+      }
+      // ---
+      var handleHook = (p_gpio) => {
+        let index = _.findIndex(gpio, function(o) { return o.gpio == p_gpio })
+        let classes = $( `#gpio${p_gpio}_enabled` ).prop("classList")
+        classes = typeof classes === 'undefined' ? 'is-hidden' : classes.toString()
+        if ( classes.indexOf('is-hidden') === -1 ) { // if gpio is enabled, return
+          setMsg('Before changing the setting, the GPIO must first be deactivated!', 'is-danger')
+          return
+        }
+        // ---
+        $( `#form_url` ).attr('pgio', p_gpio)
+        $( `#form_webhook` ).show()
+      }
+      // ---
+      var flashGpioLabel = (p_gpio, p_id) => { // flash on/off label (IN, OUT, DHT11, DHT22)
+        try {
+          // clear
+          $( `#gpio${p_gpio}_in` ).removeClass('p-handle')
+          $( `#gpio${p_gpio}_out` ).removeClass('p-handle')
+          $( `#gpio${p_gpio}_dht11` ).removeClass('p-handle')
+          $( `#gpio${p_gpio}_dht22` ).removeClass('p-handle')
+          // show
+          $( `#${p_id}` ).addClass('p-handle')
+        } catch(err) {
+          console.error(err)
+        }
+      }
+      var handleGpio = (p_gpio, p_type, p_element) => { // click on label (IN, OUT, DHT11, DHT22) - pin preparation
+        try {
+          let index = _.findIndex(gpio, function(o) { return o.gpio == p_gpio })
+          let classes = $( `#gpio${p_gpio}_enabled` ).prop("classList")
+          classes = typeof classes === 'undefined' ? 'is-hidden' : classes.toString()
+          if ( classes.indexOf('is-hidden') === -1 ) { // if gpio is enabled, return
+            setMsg('Before changing the setting, the GPIO must first be deactivated!', 'is-danger')
+            return
+          }
+          // only flash label
+          flashGpioLabel(p_gpio, p_element.id)
+          // set to gpio
+          let obj = {
+            gpio: p_gpio,
+            type: p_type,
+            value: p_type === 'out' ? 0 : undefined
+          }
+          if (index > -1) {
+            let c_obj = gpio[index]
+            gpio[index] = Object.assign(obj, c_obj) // c_obj has webhook
+          } else {
+            gpio.push(obj)
+          }
+        } catch(err) {
+          console.error(err)
+        }
+      }
+      // ---
+      var deactivateGpio = (p_gpio) => {
+        try {
+          let index = _.findIndex(gpio, function(o) { return o.gpio == p_gpio })
+          if (index > -1) {
+            // call request to remove gpio
+            $.ajax({
+              url: `api/v1/gpio/remove?gpio=${p_gpio}&save=true`,
+              dataType: 'json'
+            })
+            .done(function(data) {
+              // gpio removed
+            })
+            .fail(function() {
+              console.error( `Remove gpio${p_gpio} failed!` )
+            })
+            .always(function() {
+              console.log( `Remove gpio${p_gpio} finished!` )
+            })
+          }
+        } catch(err) {
+          console.error(err)
+        }
+      }
+      // ---
+      var WebSocketClient = () => {
+        if ("WebSocket" in window) {
+          let ws_server = window.location.hostname
+          console.log("WebSocket is supported by your Browser! ")
+          // Let us open a web socket
+          var ws = new WebSocket(`ws://${ws_server}:8080`, 'gpio-ws')
+          ws.onopen = function() {
+            // Web Socket is connected, send data using send()
+            ws.send("Hi, I am browser and you?")
+            console.log("Message is sent...")
+            $('#ws_disconnect').css('display', 'none')
+            $('#ws_connect').css('display', 'inline-block')
+          }
+  
+          ws.onmessage = function (evt) { 
+            var received_msg = evt.data
+            console.log("Message is received =>", received_msg)
+            try {
+              let msg = JSON.parse(received_msg)
+              console.log('obj', msg)
+              switch (msg.type_msg) {
+
+                case 'changed value':
+                  let index = _.findIndex(gpio, function(o) { return o.gpio == msg.gpio })
+                  if (index > -1) { // browser v ktorom sa kliklo
+                    gpio[index].value = msg.value // nastav hodnotu na aktualnu
+                    gpio[index].pin = msg.pin
+                  } else { // browser, ktory to len prijal, kliklo sa v inom browseri...
+                    delete msg.type_msg
+                    gpio.push(msg)
+                    index = gpio.length -1
+                    // only flash label
+                    flashGpioLabel(msg.gpio, `gpio${msg.gpio}_${msg.type}`)
+                  }
+                  // btnSwitchStatus(gpio[index])
+                  let classes = $( `#gpio${gpio[index].gpio}_enabled` ).prop("classList")
+                  classes = typeof classes === 'undefined' ? 'is-hidden' : classes.toString()
+                  if ( classes.indexOf('is-hidden') > -1 ) { // if gpio is not enabled
+                    setMsg(`GPIO${gpio[index].gpio} is activated.`, 'is-success', 3000)
+                  }
+                  $( `#gpio${gpio[index].gpio}_enabled` ).removeClass('is-hidden') // zafajkni ze je GPIO aktivne
+                  $( `#gpio${gpio[index].gpio}_disabled` ).addClass('is-hidden')
+                  // ---
+                  if (msg.type === 'out') {
+                    btnSwitchStatus(gpio[index])
+                  }
+                  if (msg.type === 'in') {
+                    if (msg.value > -1) {
+                      $( `#gpio${msg.gpio}_in` ).text(`IN ${msg.value}`)
+                    }
+                  }
+                  if (msg.type === 'dht11' || msg.type === 'dht22') {
+                    let value = ""
+                    if (msg.temperature) {
+                      value = msg.temperature.toFixed(2) + '°C | '
+                    }
+                    if (msg.humidity) {
+                      value += msg.humidity.toFixed(2) + '%'
+                    }
+                    $( `#gpio${msg.gpio}_note` ).text(`${value}`)
+                  }
+                  break
+
+                case 'gpio deactived':
+                  let indx = _.findIndex(gpio, function(o) { return o.gpio == msg.gpio })
+                  console.log('indx => ', indx)
+                  if (indx > -1) {
+                    // clear
+                    $( `#gpio${gpio[indx].gpio}_enabled` ).addClass('is-hidden') // odfajkni ze je GPIO aktivne
+                    $( `#gpio${gpio[indx].gpio}_disabled` ).removeClass('is-hidden')
+                    $( `#gpio${msg.gpio}_in` ).removeClass('p-handle')
+                    $( `#gpio${msg.gpio}_out` ).removeClass('p-handle')
+                    $( `#gpio${msg.gpio}_dht11` ).removeClass('p-handle')
+                    $( `#gpio${msg.gpio}_dht22` ).removeClass('p-handle')
+                    $( `#gpio${msg.gpio}_webhook` ).removeClass('p-handle')
+                    $( `#gpio${msg.gpio}_webhook` ).removeAttr('title')
+                    $( `#gpio${msg.gpio}_in` ).html("IN&nbsp;&nbsp;")
+                    $( `#gpio${msg.gpio}_note` ).html("")
+                    // remove from gpio
+                    gpio.splice(indx, 1)
+                    setMsg(`GPIO${msg.gpio} is deactivated.`, 'is-success', 3000)
+                  }
+                  break
+                
+                default:
+              }
+            } catch(err) {
+              console.log("Message is received =>", received_msg)
+            }
+          }
+  
+          ws.onclose = function() { 
+            // websocket is closed.
+            console.log("Connection is closed...")
+            $('#ws_connect').css('display', 'none')
+            $('#ws_disconnect').css('display', 'inline-block')
+            setTimeout(() => {
+              console.log("Websocket reconnect...")
+              WebSocketClient()
+            }, 5000)
+          }
+        } else {
+          // The browser doesn't support WebSocket
+          console.error("WebSocket NOT supported by your Browser!")
+        }
+      }
+   </script>
+  </body>
+</html>

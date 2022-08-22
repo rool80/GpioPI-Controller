@@ -3,6 +3,7 @@ const
   gpiop = require('rpi-gpio').promise,
   gpio = require('rpi-gpio'),
   axios = require('axios').default,
+  _ = require('lodash'),
   dht_sensor = require("node-dht-sensor"),
   logger = require('../../config/logger.js'),
   tool = require('./tool.service.js')
@@ -28,11 +29,30 @@ const watchPinOut = async (p_pin, p_webhook_url) => {
         // logger.debug('[gpio.service.js] on_change, pin: ' + pin + ', gpio: ' + p_gpio + ' value is now ' + val)
         val = val === true ? 1 : 0
         webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&value=${val}`)
+        wsSendAll(JSON.stringify({ // RELAY etc... !!!
+          type_msg: 'changed value',
+          type: 'out',
+          gpio: p_gpio,
+          pin: p_pin,
+          value: val
+        }))
       })
       return { status: true }
     })
   } catch(err) {
     return { status: false, err: err }
+  }
+}
+
+/**
+ * Funkcia odosle spravu vsetkym pripojenym klientom cez websocket.
+ * @param {*} p_msg 
+ */
+const wsSendAll = (p_msg) => {
+  // websocket: send msg to all browsers
+  for (let index = 0; index < global.ws.length; index++) {
+    const connection = global.ws[index]
+    connection.sendUTF(p_msg)
   }
 }
 
@@ -52,7 +72,7 @@ const watchPinOut = async (p_pin, p_webhook_url) => {
  *      err: err (v pripade zlyhania obsahuje error, inak nie je vyplnene)
  *    }
  */
-const setPin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
+const setGpio = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
   try {
     let 
       value,
@@ -64,32 +84,87 @@ const setPin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
         pout.writeSync(p_value)
         value = pout.readSync()
         if (p_webhook_url) {
-          watchPinOut(p_pin, p_webhook_url)
+          watchPinOut(p_pin, p_webhook_url) // webhook pre OUT, websocket info pre OUT
         }
+        wsSendAll(JSON.stringify({ // RELAY etc... !!!
+          type_msg: 'changed value',
+          type: p_type,
+          gpio: p_gpio,
+          pin: p_pin,
+          value: value
+        }))
         break
       case 'in':
         const pin = new Gpio(p_gpio, p_type, 'both')
-        pin.watch((err, val) => { // webhook pre IN
+        wsSendAll(JSON.stringify({ // PIR, MAGNETIC etc... !!! only activated
+          type_msg: 'changed value',
+          type: p_type,
+          gpio: p_gpio,
+          pin: p_pin
+        }))
+        pin.watch((err, val) => { // on change!!! webhook pre IN
           if (err) {
             throw err
           }
           // logger.debug('watch p_gpio ' + p_gpio + " pin " + p_pin + ", value " + val)
-          webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&value=${val}`)
+          if (p_webhook_url) {
+            webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&value=${val}`)
+          }
+          wsSendAll(JSON.stringify({ // PIR, MAGNETIC etc... !!! only watch
+            type_msg: 'changed value',
+            type: p_type,
+            gpio: p_gpio,
+            pin: p_pin,
+            value: val
+          }))
         })
         break
       case 'dht11':
       case 'dht22': // dht 22 or dht 11 sensor
-        var dht_type = p_type === 'dht22' ? 22 : 11
-        setInterval(() => {
+        // ---
+        let _timeout = () => {
+          setTimeout(() => {
+            _readSensor()
+            if (global.dht.indexOf(p_gpio) > -1) { // ak sa gpio nachadza v dht, volaj dalsi timeout...
+              _timeout()
+            }
+          }, 60000)
+        }
+        // ---
+        var _readSensor = () => {
+          logger.debug('_readSensor()')
           dht_sensor.read(dht_type, p_gpio, function(err, temperature, humidity) {
             if (!err) {
-              logger.debug(`temp: ${temperature}°C, humidity: ${humidity}%`)
-              webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&temperature=${temperature}&humidity=${humidity}`)
+              // logger.debug(`temp: ${temperature}°C, humidity: ${humidity}%`)
+              if (p_webhook_url) {
+                webHook(p_webhook_url + `?gpio=${p_gpio}&pin=${p_pin}&temperature=${temperature}&humidity=${humidity}`) // webhook pre DHT
+              }
+              wsSendAll(JSON.stringify({ // DHT sensor !!! only watch/change
+                type_msg: 'changed value',
+                type: p_type,
+                gpio: p_gpio,
+                pin: p_pin,
+                temperature: temperature,
+                humidity: humidity
+              }))
             } else {
               logger.error(`setPin | DHT sensor (${dht_type}) ! err => ${err.toString()}`)
             }
           })
-        }, 60000)
+        }
+        // -------
+        var dht_type = p_type === 'dht22' ? 22 : 11
+        wsSendAll(JSON.stringify({ // DHT sensor !!! only activated
+          type_msg: 'changed value',
+          type: p_type,
+          gpio: p_gpio,
+          pin: p_pin,
+          temperature: 1,
+          humidity: 1
+        }))
+        global.dht.push(p_gpio) // aktivuj gpio ako dht senzor
+        _readSensor()
+        _timeout()
         break
     }
 
@@ -121,7 +196,7 @@ const setPin = async (p_gpio, p_type, p_value, p_webhook_url, p_save) => {
  *      err: err (v pripade zlyhania obsahuje error, inak nie je vyplnene)
  *    }
  */
-const getPin = async (p_gpio) => {
+const getGpio = async (p_gpio) => {
   try {
     const pin = new Gpio(p_gpio) // napr.: 17
       
@@ -175,9 +250,40 @@ const Gpio2Pin = async (p_gpio) => {
   }
 }
 
+/**
+ * 
+ * Odstrani nastavenie pre GPIO pin z data.json a serveru. Resetuje GPIO do defaultu.
+ * @param {*} p_gpio 
+ * @returns 
+ */
+const removeGpio = async (p_gpio) => {
+  try {
+    await tool.removeGPIO(p_gpio)
+    await setGpio(p_gpio, 'out', 0) // resetuj, nastav na out a hodntu 0
+    let index = global.dht.indexOf(p_gpio) // najdi ci je gpio v globalnej premenej dht
+    if (index > -1) { // ak ano...
+      global.dht.splice(index, 1) // odober
+    }
+    // websocket: send msg to all browsers
+    for (let index = 0; index < global.ws.length; index++) {
+      const connection = global.ws[index]
+      connection.sendUTF(JSON.stringify({
+        type_msg: 'gpio deactived',
+        type: 'out',
+        gpio: p_gpio
+      }))
+    }
 
-exports.setPin = setPin
-exports.getPin = getPin
+    return { status: true, value: value }
+  } catch(err) {
+
+    return { status: false, err: err.toString() }
+  }
+}
+
+
+exports.setGpio = setGpio
+exports.getGpio = getGpio
+exports.removeGpio = removeGpio
 exports.Gpio2Pin = Gpio2Pin
 exports.Pin2Gpio = Pin2Gpio
-// exports.on_change = watchPinOut
