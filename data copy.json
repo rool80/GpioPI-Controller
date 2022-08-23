@@ -1,0 +1,1 @@
+{"gpios":[{"gpio":2,"pin":3,"type":"out","value":1},{"gpio":4,"pin":7,"type":"in","value":1,"webhook_url":"http://10.7.80.202:6335/test_motion"}]}

@@ -783,7 +783,7 @@
       </div>
     </footer>
     <script type="text/javascript">
-      let 
+      var 
         gpio = [],
         msgTimeout
 
@@ -796,8 +796,10 @@
         })
         .done(function(data) {
           console.log( "data loaded =>", data )
-          gpio = data.gpios_init
-          loadGpios(data.gpios_init)
+          if (data && data.gpios_init) {
+            gpio = data.gpios_init
+            loadGpios(data.gpios_init)
+          }
         })
         .fail(function() {
           console.error( "Load init configuration error!" )
