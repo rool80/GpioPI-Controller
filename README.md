@@ -10,6 +10,10 @@ or
 
 pm2 start pm2.GpioPI-Controller.js
 
+# Tutorial
+
+https://www.youtube.com/watch?v=z23H0KdqGus&ab_channel=RooLPI
+
 # WEB
 
 A simple option to configure and monitor the GPIO status using the web interface at the url address http://your_ip_address:8080
